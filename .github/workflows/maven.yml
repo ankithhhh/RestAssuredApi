@@ -1,0 +1,73 @@
+
+name: Run BDD RestAssured Tests
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      
+      - name: Cache Maven dependencies
+        id: cache-maven
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: maven-${{ runner.os }}-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            maven-${{ runner.os }}-
+      
+      - name: Show cache result
+        run: echo "Cache hit? -> ${{ steps.cache-maven.outputs.cache-hit }}"
+        
+      - name: Build and test with Maven
+        run: mvn clean test
+        continue-on-error: false
+      
+      - name: List generated Extent Report
+        if: always()
+        run: |
+          echo "Listing files in ExtentReports directory:"
+          mkdir -p "${{ github.workspace }}/target/ExtentReports"
+          ls -la "${{ github.workspace }}/target/ExtentReports" || echo "Directory empty or not found"
+      
+      - name: Check if report exists
+        if: always()
+        run: |
+          if [ -f "${{ github.workspace }}/target/ExtentReports/ExtentReport.html" ]; then
+            echo "Extent Report found!"
+          else
+            echo "Extent Report not found!"
+            echo "Checking general target directory structure:"
+            find "${{ github.workspace }}/target" -type f -name "*.html" | grep -i extent || echo "No Extent reports found in target"
+          fi
+      
+      - name: Send email notification
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: "Test Failed - Extent Report Attached"
+          body: |
+            Hello Developer,
+            One or more tests have failed during the GitHub Actions workflow.
+            Please review the attached Extent Report for more information.
+            Regards,  
+            GitHub Actions
+          to: ${{ secrets.DEVELOPER_EMAIL }}
+          from: ${{ secrets.GMAIL_USERNAME }}
+          attachments: |
+            ${{ github.workspace }}/target/ExtentReports/ExtentReport.html
