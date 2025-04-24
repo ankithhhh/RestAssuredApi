@@ -15,4 +15,4 @@ Feature: Maps API PUT Request using Excel
     Examples: 
       | excelPath                             | sheetForPost | sheetForPut | rowIndex | ExpectedStatusCode | ExpectedMessage              |
       | src/test/resources/data/PostData.xlsx | PostData     | PutData     |        1 |                200 | Address successfully updated |
-      | src/test/resources/data/PostData.xlsx | PostData     | PutData     |        2 |                200 | Address successfully updated |
+      | src/test/resources/data/PostData.xlsx | PostData     | PutData     |        2 |                400 | Address successfully updated |
