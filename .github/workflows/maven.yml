@@ -58,10 +58,10 @@ jobs:
         run: |
           if [ "${{ job.status }}" == "success" ]; then
             echo "EMAIL_SUBJECT=Test Passed - Extent Report Attached" >> $GITHUB_ENV
-            echo "EMAIL_BODY=Hello Developer,%0AThe tests have PASSED successfully.%0APlease review the attached Extent Report for details.%0ARegards,%0AGitHub Actions" >> $GITHUB_ENV
+            echo "EMAIL_BODY=Hello Developer,The tests have PASSED successfully.Please review the attached Extent Report for details.%0ARegards,AGitHub Actions" >> $GITHUB_ENV
           else
             echo "EMAIL_SUBJECT=Test Failed - Extent Report Attached" >> $GITHUB_ENV
-            echo "EMAIL_BODY=Hello Developer,%0AOne or more tests have FAILED.%0APlease review the attached Extent Report for details.%0ARegards,%0AGitHub Actions" >> $GITHUB_ENV
+            echo "EMAIL_BODY=Hello Developer,One or more tests have FAILED.Please review the attached Extent Report for details.Regards,%0AGitHub Actions" >> $GITHUB_ENV
           fi
 
       - name: Send email notification
